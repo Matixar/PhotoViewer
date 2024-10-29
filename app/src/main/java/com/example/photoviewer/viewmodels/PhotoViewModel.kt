@@ -29,12 +29,15 @@ class PhotoViewModel @Inject constructor(
 
     fun fetchPhotos() {
         _isLoading.value = true
-        val randomPage = Random.nextInt(1, 33) // Unsplash consists of 33 full pages of photos
+        val randomPage = Random.nextInt(1, 49) // Unsplash consists of 49 full pages of photos
         viewModelScope.launch {
             try {
                 val response = repository.getPhotos(randomPage)
                 if(response.isSuccessful) {
                     _photoList.value = response.body()
+                    if(_photoList.value.isNullOrEmpty()) {
+                        _error.value = "No photos found"
+                    }
                 } else {
                     _error.value = "Error: ${response.message()}"
                 }

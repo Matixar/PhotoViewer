@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PhotoViewer</string>
+    <string name="id">ID: </string>
+    <string name="author">Author: </string>
+    <string name="dimensions">Dimensions: </string>
+    <string name="url">Download URL: </string>
 </resources>

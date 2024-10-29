@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +35,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
@@ -87,14 +91,16 @@ fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel
             }
         } else {
 
-            LazyColumn {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 125.dp)
+            )  {
                 items(photoList) { photo ->
                     PhotoListItem(photo, navController)
                 }
             }
 
             error?.let {
-                Text(it, color = Color.Red)
+                Text(it, color = Color.Red, modifier = Modifier.align(Alignment.CenterHorizontally))
             }
         }
     }
@@ -102,23 +108,29 @@ fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel
 
 @Composable
 fun PhotoListItem(photo: Photo, navController: NavController) {
-    Row(
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { navController.navigate("photoDetails/${photo.id}") }
             .padding(16.dp)
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(photo.downloadUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = "Photo ${photo.id}, by ${photo.author}",
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(photo.downloadUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Photo ${photo.id}, by ${photo.author}",
+                modifier = Modifier.size(100.dp)
+            )
+            Spacer(modifier = Modifier.width(32.dp))
+            Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(
+                    stringResource(R.string.id),
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                Text(photo.id, modifier = Modifier.align(Alignment.CenterVertically))
+            }
+        }
 
-            modifier = Modifier.size(100.dp)
-        )
-        Spacer(modifier = Modifier.width(32.dp))
-        Text(text = "ID = ${photo.id}", modifier = Modifier.align(Alignment.CenterVertically))
-    }
-    HorizontalDivider(thickness = 2.dp)
 }
