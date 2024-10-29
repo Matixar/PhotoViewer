@@ -52,7 +52,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.runtime.livedata)
+    implementation(libs.androidx.junit.ktx)
+    implementation(libs.androidx.ui.test.junit4.android)
     testImplementation(libs.junit)
+    testImplementation (libs.mockk)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -67,5 +70,11 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.coil3.coil.compose)
     implementation(libs.coil.network.okhttp)
+    testImplementation(libs.hilt.android.testing)
+    kaptTest(libs.dagger.hilt.android.compiler)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
+    testImplementation(libs.androidx.core.testing)
 
 }
