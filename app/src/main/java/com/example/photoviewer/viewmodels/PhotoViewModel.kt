@@ -1,13 +1,13 @@
 package com.example.photoviewer.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.photoviewer.model.Photo
 import com.example.photoviewer.repository.PhotoRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -18,28 +18,26 @@ class PhotoViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
-    private val _photoList = savedStateHandle.getLiveData<List<Photo>>("photoList")
-    val photoList: LiveData<List<Photo>> get() = _photoList
+    private val _photoList = MutableStateFlow(savedStateHandle.get("photoList") ?: emptyList<Photo>())
+    val photoList: StateFlow<List<Photo>> = _photoList
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String> get() = _error
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> get() = _isLoading
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     fun fetchPhotos() {
         _isLoading.value = true
         val randomPage = Random.nextInt(1, 49) // Unsplash consists of 49 full pages of photos
         viewModelScope.launch {
             try {
-                val response = repository.getPhotos(randomPage)
-                if(response.isSuccessful) {
-                    _photoList.value = response.body()
-                    if(_photoList.value.isNullOrEmpty()) {
-                        _error.value = "No photos found"
-                    }
+                val result = repository.getPhotos(randomPage)
+                if(result.isSuccess) {
+                    val photos = result.getOrNull().orEmpty()
+                    _photoList.value = photos
                 } else {
-                    _error.value = "Error: ${response.message()}"
+                    _error.value = "Error: ${result.exceptionOrNull()?.message}"
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to load photos"

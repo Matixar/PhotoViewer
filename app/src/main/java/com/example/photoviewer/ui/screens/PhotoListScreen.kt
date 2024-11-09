@@ -20,13 +20,17 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,13 +46,15 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.example.photoviewer.R
 import com.example.photoviewer.model.Photo
+import com.example.photoviewer.services.NetworkFunctions
 import com.example.photoviewer.viewmodels.PhotoViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel) {
-    val photoList by photoViewModel.photoList.observeAsState(emptyList())
-    val error by photoViewModel.error.observeAsState()
-    val isLoading by photoViewModel.isLoading.observeAsState(false)
+    val photoList by photoViewModel.photoList.collectAsState(initial = emptyList())
+    val error by photoViewModel.error.collectAsState(initial = null)
+    val isLoading by photoViewModel.isLoading.collectAsState(initial =false)
 
     var isRefreshPressed by remember { mutableStateOf(false) }
     val angle by animateFloatAsState(
@@ -56,6 +62,9 @@ fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel
         animationSpec = tween(600),
         label = "spin"
     )
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         if (photoList.isEmpty()) {
@@ -66,12 +75,25 @@ fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        val context = LocalContext.current
         OutlinedButton(
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             onClick = {
-                photoViewModel.fetchPhotos()
+                if(NetworkFunctions.isInternetAvailable(context)) {
+                    photoViewModel.fetchPhotos()
+                }
+                else {
+                    val message = "No internet connection. Please check your network settings."
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = message,
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
                 isRefreshPressed = !isRefreshPressed
             }
         ) {
@@ -103,6 +125,7 @@ fun PhotoListScreen(navController: NavController, photoViewModel: PhotoViewModel
             }
         }
     }
+    SnackbarHost(hostState = snackbarHostState)
 }
 
 @Composable

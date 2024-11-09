@@ -65,40 +65,5 @@ fun PhotoDetailsScreen(photo: Photo) {
 @Preview
 @Composable
 fun PhotoDetailsScreenPreview() {
-    val photo = Photo("1","author",480,600,"https://picsum.photos/id/0/5000/3333")
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AsyncImage(
-            model = photo.downloadUrl,
-            contentDescription = "Photo ${photo.id}, by ${photo.author}",
-            modifier = Modifier
-                .animateContentSize()
-                .fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row {
-            Text(stringResource(R.string.id), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-            Text(photo.id, style = MaterialTheme.typography.bodyMedium)
-        }
-        Row {
-            Text(stringResource(R.string.author), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-            Text(photo.author, style = MaterialTheme.typography.bodyMedium)
-        }
-        Row {
-            Text(stringResource(R.string.dimensions), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-            Text("${photo.width} x ${photo.height}", style = MaterialTheme.typography.bodyMedium)
-        }
-        Row {
-            Text(stringResource(R.string.url), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-            Text(photo.downloadUrl, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
+    PhotoDetailsScreen(Photo("id", "author", 100, 100, "url"))
 }
